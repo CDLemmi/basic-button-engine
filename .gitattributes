@@ -10,3 +10,5 @@
 # Binary files should be left untouched
 *.jar           binary
 
+# custom
+gradle/wrapper/gradle-wrapper.properties	text eol=lf

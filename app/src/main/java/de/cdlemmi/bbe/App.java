@@ -8,7 +8,10 @@ import org.lwjgl.opengl.GL11;
 import org.lwjgl.system.MemoryStack;
 
 public class App {
+	
     private long window;
+
+
 
     public void run() {
         init();
