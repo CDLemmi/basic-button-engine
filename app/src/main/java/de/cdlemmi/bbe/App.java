@@ -5,7 +5,6 @@ import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
-import org.lwjgl.system.MemoryStack;
 
 public class App {
 	
@@ -38,17 +37,13 @@ public class App {
         // Configure GLFW
         GLFW.glfwDefaultWindowHints(); // optional, the current window hints are already the default
         GLFW.glfwWindowHint(GLFW.GLFW_VISIBLE, GLFW.GLFW_FALSE); // the window will stay hidden after creation
-        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_TRUE); // the window will be resizable
+        GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE); // the window will be resizable
 
         // Create the window
         window = GLFW.glfwCreateWindow(800, 600, "Hello LWJGL", 0, 0);
         if (window == 0) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
-
-        // Get the thread stack and push a new frame
-        MemoryStack.stackPush();
-        //org.lwjgl.system.MemoryUtil.memStackPush();
 
         // Center the window
         org.lwjgl.glfw.GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
@@ -68,8 +63,8 @@ public class App {
         GLFW.glfwShowWindow(window);
 
         inputHandler = new InputHandler();
-        GLFW.glfwSetCursorPosCallback(window, (l, x, y) -> inputHandler.handleMouseMove((int) x, (int) y));
-        GLFW.glfwSetMouseButtonCallback(window, (l, b, a, m) -> inputHandler.handleClick(b, a));
+        GLFW.glfwSetCursorPosCallback(window, (_, x, y) -> inputHandler.handleMouseMove((int) x, (int) y));
+        GLFW.glfwSetMouseButtonCallback(window, (_, b, a, _) -> inputHandler.handleClick(b, a));
     }
 
     private void loop() {
