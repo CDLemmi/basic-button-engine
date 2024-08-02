@@ -11,6 +11,7 @@ public class App {
 	
     private long window;
 
+    InputHandler inputHandler;
 
 
     public void run() {
@@ -23,7 +24,6 @@ public class App {
 
         // Terminate GLFW and free the error callback
         GLFW.glfwTerminate();
-        GLFW.glfwSetErrorCallback(null).free();
     }
 
     private void init() {
@@ -47,26 +47,29 @@ public class App {
         }
 
         // Get the thread stack and push a new frame
-        try (MemoryStack stack = MemoryStack.stackPush()) {
-            //org.lwjgl.system.MemoryUtil.memStackPush();
+        MemoryStack.stackPush();
+        //org.lwjgl.system.MemoryUtil.memStackPush();
 
-            // Center the window
-            org.lwjgl.glfw.GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
-            GLFW.glfwSetWindowPos(
-                    window,
-                    (vidmode.width() - 800) / 2,
-                    (vidmode.height() - 600) / 2
-            );
+        // Center the window
+        org.lwjgl.glfw.GLFWVidMode vidmode = GLFW.glfwGetVideoMode(GLFW.glfwGetPrimaryMonitor());
+        GLFW.glfwSetWindowPos(
+                window,
+                (vidmode.width() - 800) / 2,
+                (vidmode.height() - 600) / 2
+        );
 
-            // Make the OpenGL context current
-            GLFW.glfwMakeContextCurrent(window);
+        // Make the OpenGL context current
+        GLFW.glfwMakeContextCurrent(window);
 
-            // Enable v-sync
-            GLFW.glfwSwapInterval(1);
+        // Enable v-sync
+        GLFW.glfwSwapInterval(1);
 
-            // Make the window visible
-            GLFW.glfwShowWindow(window);
-        }
+        // Make the window visible
+        GLFW.glfwShowWindow(window);
+
+        inputHandler = new InputHandler();
+        GLFW.glfwSetCursorPosCallback(window, (l, x, y) -> inputHandler.handleMouseMove((int) x, (int) y));
+        GLFW.glfwSetMouseButtonCallback(window, (l, b, a, m) -> inputHandler.handleClick(b, a));
     }
 
     private void loop() {
@@ -84,6 +87,13 @@ public class App {
         while (!GLFW.glfwWindowShouldClose(window)) {
             GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); // clear the framebuffer
 
+            var e = inputHandler.getMouseEvent();
+            if(e != null) {
+                System.out.println(e);
+            }
+
+
+
             GLFW.glfwSwapBuffers(window); // swap the color buffers
 
             // Poll for window events. The key callback above will only be
@@ -93,8 +103,14 @@ public class App {
     }
 
     public static void main(String[] args) {
-		System.out.println("Hello World");
-        new App().run();
-		System.out.println("program finished");
+        try {
+            System.out.println("Hello World");
+            new App().run();
+            System.out.println("program finished");
+        } catch(Exception e) {
+            //noinspection CallToPrintStackTrace
+            e.printStackTrace();
+        }
     }
+
 }
