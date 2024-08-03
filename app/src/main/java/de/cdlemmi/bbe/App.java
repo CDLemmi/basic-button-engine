@@ -6,15 +6,17 @@ import org.lwjgl.glfw.Callbacks;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL11;
 
+
 public class App {
 	
     private long window;
 
     InputHandler inputHandler;
-
+    Screen screen;
 
     public void run() {
         init();
+
         loop();
 
         // Free the window callbacks and destroy the window
@@ -23,6 +25,34 @@ public class App {
 
         // Terminate GLFW and free the error callback
         GLFW.glfwTerminate();
+    }
+
+
+
+    private void loop() {
+        // This line is critical for LWJGL's interoperation with GLFW's
+        // OpenGL context, or any context that is managed externally.
+        // LWJGL detects the context that is current in the current thread,
+        // creates the GLCapabilities instance and makes the OpenGL
+        // bindings available for use.
+
+
+        // Run the rendering loop until the user attempts to close the window
+        while (!GLFW.glfwWindowShouldClose(window)) {
+
+            var e = inputHandler.getMouseEvent();
+            if(e != null) {
+                //System.out.println(e);
+                screen.handleClick(e);
+            }
+
+            screen.render();
+
+
+            // Poll for window events. The key callback above will only be
+            // invoked during this call.
+            GLFW.glfwPollEvents();
+        }
     }
 
     private void init() {
@@ -40,7 +70,7 @@ public class App {
         GLFW.glfwWindowHint(GLFW.GLFW_RESIZABLE, GLFW.GLFW_FALSE); // the window will be resizable
 
         // Create the window
-        window = GLFW.glfwCreateWindow(800, 600, "Hello LWJGL", 0, 0);
+        window = GLFW.glfwCreateWindow(800, 600, "Basic Button Engine", 0, 0);
         if (window == 0) {
             throw new RuntimeException("Failed to create the GLFW window");
         }
@@ -59,42 +89,16 @@ public class App {
         // Enable v-sync
         GLFW.glfwSwapInterval(1);
 
-        // Make the window visible
-        GLFW.glfwShowWindow(window);
 
         inputHandler = new InputHandler();
         GLFW.glfwSetCursorPosCallback(window, (_, x, y) -> inputHandler.handleMouseMove((int) x, (int) y));
         GLFW.glfwSetMouseButtonCallback(window, (_, b, a, _) -> inputHandler.handleClick(b, a));
-    }
 
-    private void loop() {
-        // This line is critical for LWJGL's interoperation with GLFW's
-        // OpenGL context, or any context that is managed externally.
-        // LWJGL detects the context that is current in the current thread,
-        // creates the GLCapabilities instance and makes the OpenGL
-        // bindings available for use.
-        GL.createCapabilities();
+        screen = new Screen(window);
 
-        // Set the clear color
-        GL11.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+        // Make the window visible
+        GLFW.glfwShowWindow(window);
 
-        // Run the rendering loop until the user attempts to close the window
-        while (!GLFW.glfwWindowShouldClose(window)) {
-            GL11.glClear(GL11.GL_COLOR_BUFFER_BIT | GL11.GL_DEPTH_BUFFER_BIT); // clear the framebuffer
-
-            var e = inputHandler.getMouseEvent();
-            if(e != null) {
-                System.out.println(e);
-            }
-
-
-
-            GLFW.glfwSwapBuffers(window); // swap the color buffers
-
-            // Poll for window events. The key callback above will only be
-            // invoked during this call.
-            GLFW.glfwPollEvents();
-        }
     }
 
     public static void main(String[] args) {
